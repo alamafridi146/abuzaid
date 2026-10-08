@@ -332,12 +332,8 @@ function loadDB(){
     const d = defaultDB(); saveDB(d); return d;
   }
 }
-function saveDB(db){ 
-  localStorage.setItem(DB_KEY, JSON.stringify(db)); 
-  if (!isRemoteUpdate) {
-    syncToFirebase(db);
-  }
-}
+function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
 let DB = loadDB();
 function nextNo(prefix, key){
   DB.seq[key] = (DB.seq[key]||0) + 1;
