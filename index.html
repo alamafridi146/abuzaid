@@ -227,6 +227,9 @@ tr.brow td{font-weight:700;background:var(--thead);}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Firebase Compatibility Libraries -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -283,6 +286,47 @@ const LOGO_B64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/4QFURXhpZgAATU0AKgAAAAgABQEAAAMAAA
 const LOGO_DATA_URL = "data:image/jpeg;base64," + LOGO_B64;
 
 /* ---------------- Storage helpers ---------------- */
+  /* =========================================================
+   Firebase Background Live Sync (Non-Blocking)
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCBb9s4RACgML4V3DrgqbUWJNkkavsc3Uk",
+  authDomain: "abuzaid-transportation.firebaseapp.com",
+  databaseURL: "https://abuzaid-transportation-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "abuzaid-transportation",
+  storageBucket: "abuzaid-transportation.firebasestorage.app",
+  messagingSenderId: "184718628858",
+  appId: "1:184718628858:web:5bb599b0f7eb6b5c017643"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const dbRef = firebase.database().ref('erp_data');
+
+// Background Sync Function
+function syncToFirebase(dbData) {
+  setTimeout(() => {
+    dbRef.set(dbData).catch(err => console.log('Firebase Sync Pending:', err));
+  }, 50);
+}
+
+// Background Listener for Live Sync Across Devices
+let isRemoteUpdate = false;
+dbRef.on('value', (snapshot) => {
+  const remoteData = snapshot.val();
+  if (remoteData && JSON.stringify(remoteData) !== localStorage.getItem(DB_KEY)) {
+    isRemoteUpdate = true;
+    localStorage.setItem(DB_KEY, JSON.stringify(remoteData));
+    if (typeof DB !== 'undefined') {
+      DB = remoteData;
+      if (typeof refreshBackground === 'function') {
+        refreshBackground();
+      }
+    }
+    isRemoteUpdate = false;
+  }
+});
 const DB_KEY = 'abuzaid_erp_db_v1';
 
 function defaultDB(){
@@ -332,8 +376,12 @@ function loadDB(){
     const d = defaultDB(); saveDB(d); return d;
   }
 }
-function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
+function saveDB(db){ 
+  localStorage.setItem(DB_KEY, JSON.stringify(db)); 
+  if (!isRemoteUpdate) {
+    syncToFirebase(db);
+  }
+}
 let DB = loadDB();
 function nextNo(prefix, key){
   DB.seq[key] = (DB.seq[key]||0) + 1;
