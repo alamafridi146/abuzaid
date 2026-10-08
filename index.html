@@ -2940,6 +2940,26 @@ function exportModelPDF(m){
     tr{page-break-inside:avoid;} thead{display:table-header-group;}
     .ft{margin-top:14px;font-size:10px;color:#777;border-top:1px solid #ddd;padding-top:6px;}
     ${MODEL_CSS}
+    <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+  // Aapke Firebase Project Config Details
+  const firebaseConfig = {
+    apiKey: "AIzaSyCBb9s4RACgML4V3DrgqbUWJNkkavsc3Uk",
+    authDomain: "abuzaid-transportation.firebaseapp.com",
+    databaseURL: "https://abuzaid-transportation-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "abuzaid-transportation",
+    storageBucket: "abuzaid-transportation.firebasestorage.app",
+    messagingSenderId: "184718628858",
+    appId: "1:184718628858:web:5bb599b0f7eb6b5c017643"
+  };
+
+  // Firebase Initialize Karein
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+</script>
   </style></head><body>
     <div class="hd"><div class="co"><img src="${LOGO_DATA_URL}" alt=""><div><b>${esc(co.name||'Abu Zaid Transportation')}</b>
       <div>${esc([co.address,co.city,co.country].filter(Boolean).join(', '))}</div>
